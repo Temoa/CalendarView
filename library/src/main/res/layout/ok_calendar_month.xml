@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:id="@+id/iv_prv_month"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ok_calendar_ic_chevron_left_24dp"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:id="@+id/tv_date"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            tools:text="2018-02" />
+
+        <ImageView
+            android:id="@+id/iv_next_month"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ok_calendar_ic_chevron_right_24dp"
+            tools:ignore="ContentDescription" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_weeks"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <include
+            android:id="@+id/tv_week_0"
+            layout="@layout/ok_calendar_item_day_of_month" />
+
+        <include
+            android:id="@+id/tv_week_1"
+            layout="@layout/ok_calendar_item_day_of_month" />
+
+        <include
+            android:id="@+id/tv_week_2"
+            layout="@layout/ok_calendar_item_day_of_month" />
+
+        <include
+            android:id="@+id/tv_week_3"
+            layout="@layout/ok_calendar_item_day_of_month" />
+
+        <include
+            android:id="@+id/tv_week_4"
+            layout="@layout/ok_calendar_item_day_of_month" />
+
+        <include
+            android:id="@+id/tv_week_5"
+            layout="@layout/ok_calendar_item_day_of_month" />
+
+        <include
+            android:id="@+id/tv_week_6"
+            layout="@layout/ok_calendar_item_day_of_month" />
+
+    </LinearLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:overScrollMode="never"
+        android:scrollbars="none" />
+</LinearLayout>
