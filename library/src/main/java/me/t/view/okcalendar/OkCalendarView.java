@@ -28,37 +28,59 @@ import java.util.Locale;
 public class OkCalendarView extends LinearLayout implements View.OnClickListener {
 
     private CalendarAdapter mCalendarAdapter;
-
     private TextView mDateTv;
 
+    private Mode mMode = Mode.SINGLE;
     private Calendar mCalendar;
     private int mMonthCount = 0;
 
-    private CalendarListener mCalendarListener;
+    private CalendarRangeSelectListener mCalendarRangeSelectListener;
+    private CalendarSingleSelectListener mCalendarSingleSelectListener;
 
-
-    public void setCalendarListener(CalendarListener calendarListener) {
-        mCalendarListener = calendarListener;
+    public enum Mode {
+        SINGLE,
+        MULTI,
+        RANGE
     }
 
+    public void setMode(Mode mode) {
+        mMode = mode;
+    }
+
+    public void setCalendarRangeSelectListener(
+            CalendarRangeSelectListener calendarRangeSelectListener) {
+
+        mCalendarRangeSelectListener = calendarRangeSelectListener;
+    }
+
+    public void setCalendarSingleSelectListener(
+            CalendarSingleSelectListener calendarSingleSelectListener) {
+
+        mCalendarSingleSelectListener = calendarSingleSelectListener;
+    }
+
+    public List<Calendar> getMultiSelectedCalendars() {
+        return mCalendarAdapter.mMultiSelectedCalendars;
+    }
+
+    public void reset() {
+        showMonth();
+    }
 
     public OkCalendarView(Context context) {
         super(context);
         init(context);
     }
 
-
     public OkCalendarView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init(context);
     }
 
-
     public OkCalendarView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context);
     }
-
 
     private void init(Context context) {
         mCalendar = Calendar.getInstance();
@@ -112,7 +134,6 @@ public class OkCalendarView extends LinearLayout implements View.OnClickListener
         showMonth();
     }
 
-
     private void showMonth() {
         Calendar temp = (Calendar) mCalendar.clone();
         temp.set(mCalendar.get(Calendar.YEAR), (mCalendar.get(Calendar.MONTH) + mMonthCount), 1);
@@ -122,12 +143,12 @@ public class OkCalendarView extends LinearLayout implements View.OnClickListener
         int daysInMonth = getDaysInMonth(month, year);
 //        int daysInLastMonth = getDaysInMonth(month - 1, year);
 //        int daysInNextMonth = getDaysInMonth(month + 1, year);
-        List<MonthItem> days = new ArrayList<>();
+        List<DayItem> days = new ArrayList<>();
         for (int i = 0; i < firstDay; i++) {
-            days.add(new MonthItem("", false, false));
+            days.add(new DayItem("", /*isSelect*/ false, /*isThisMonth*/ false));
         }
         for (int i = 1; i <= daysInMonth; i++) {
-            days.add(new MonthItem(String.valueOf(i), false, true));
+            days.add(new DayItem(String.valueOf(i), /*isSelect*/ false, /*isThisMonth*/ true));
         }
         mCalendarAdapter.reset();
         mCalendarAdapter.setNewData(days);
@@ -141,12 +162,10 @@ public class OkCalendarView extends LinearLayout implements View.OnClickListener
         showMonth();
     }
 
-
     public void prvMonth() {
         mMonthCount--;
         showMonth();
     }
-
 
     public int getDaysInMonth(int month, int year) {
         switch (month) {
@@ -170,7 +189,6 @@ public class OkCalendarView extends LinearLayout implements View.OnClickListener
         }
     }
 
-
     @Override
     public void onClick(View v) {
         int id = v.getId();
@@ -181,27 +199,24 @@ public class OkCalendarView extends LinearLayout implements View.OnClickListener
         }
     }
 
-
     class CalendarAdapter extends RecyclerView.Adapter<CalendarAdapter.ViewHolder> {
 
-        private List<MonthItem> mItems;
+        private List<DayItem> mItems;
         private int mSelectCount = 0;
-        private int mLastSelectPosition;
-        private int mCurSelectPosition;
+        private int mLastSelectPosition = -1;
 
+        List<Calendar> mMultiSelectedCalendars = new ArrayList<>();
 
         void reset() {
             mSelectCount = 0;
-            mLastSelectPosition = 0;
-            mCurSelectPosition = 0;
+            mLastSelectPosition = -1;
+            mMultiSelectedCalendars.clear();
         }
 
-
-        void setNewData(List<MonthItem> newData) {
+        void setNewData(List<DayItem> newData) {
             mItems = newData;
             notifyDataSetChanged();
         }
-
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -210,16 +225,21 @@ public class OkCalendarView extends LinearLayout implements View.OnClickListener
             return new ViewHolder(itemView);
         }
 
-
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
-            MonthItem item = mItems.get(position);
+            DayItem item = mItems.get(position);
             holder.tv.setTextColor(Color.BLACK);
             if (item.isThisMonth) {
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        clickEvent(holder);
+                        if (mMode == Mode.SINGLE) {
+                            singleSelectEvent(holder);
+                        } else if (mMode == Mode.MULTI) {
+                            multiSelectEvent(holder);
+                        } else {
+                            rangeSelectEvent(holder);
+                        }
                     }
                 });
                 if (item.isSelect()) {
@@ -231,12 +251,46 @@ public class OkCalendarView extends LinearLayout implements View.OnClickListener
                 }
             } else {
                 holder.tv.setTextColor(Color.GRAY);
+                holder.tv.setBackground(null);
+                holder.tv.setTextColor(Color.BLACK);
+                holder.tv.setOnClickListener(null);
             }
             holder.tv.setText(item.getDay());
         }
 
+        private void singleSelectEvent(ViewHolder holder) {
+            if (mLastSelectPosition != -1) {
+                mItems.get(mLastSelectPosition).setSelect(false);
+                notifyItemChanged(mLastSelectPosition);
+            }
+            int curPosition = holder.getAdapterPosition();
+            mItems.get(curPosition).setSelect(true);
+            notifyItemChanged(curPosition);
+            if (mCalendarSingleSelectListener != null) {
+                int day = Integer.valueOf(mItems.get(curPosition).getDay());
+                Calendar selectedCalendar = getCalendarByDay(day);
+                mCalendarSingleSelectListener.onDateSingleSelected(selectedCalendar);
+            }
+            mLastSelectPosition = curPosition;
+        }
 
-        private void clickEvent(ViewHolder holder) {
+        private void multiSelectEvent(ViewHolder holder) {
+            int curPosition = holder.getAdapterPosition();
+            DayItem item = mItems.get(curPosition);
+            int day = Integer.valueOf(mItems.get(curPosition).getDay());
+            Calendar selectedCalendar = getCalendarByDay(day);
+            if (item.isSelect()) {
+                mItems.get(curPosition).setSelect(false);
+                notifyItemChanged(curPosition);
+                mMultiSelectedCalendars.remove(selectedCalendar);
+                return;
+            }
+            mItems.get(curPosition).setSelect(true);
+            notifyItemChanged(curPosition);
+            mMultiSelectedCalendars.add(selectedCalendar);
+        }
+
+        private void rangeSelectEvent(ViewHolder holder) {
             if (mSelectCount == 0) {
                 mSelectCount++;
                 mLastSelectPosition = holder.getAdapterPosition();
@@ -244,52 +298,51 @@ public class OkCalendarView extends LinearLayout implements View.OnClickListener
                 notifyItemChanged(holder.getAdapterPosition());
             } else if (mSelectCount == 1) {
                 mSelectCount++;
-                mCurSelectPosition = holder.getAdapterPosition();
-                if (mCurSelectPosition > mLastSelectPosition) {
-                    for (int i = mLastSelectPosition; i <= mCurSelectPosition; i++) {
+                int curPosition = holder.getAdapterPosition();
+                if (curPosition > mLastSelectPosition) {
+                    for (int i = mLastSelectPosition; i <= curPosition; i++) {
                         mItems.get(i).setSelect(true);
                     }
                     notifyItemRangeChanged(
                             mLastSelectPosition,
-                            mCurSelectPosition - mLastSelectPosition + 1);
+                            curPosition - mLastSelectPosition + 1);
 
-                    Calendar startCalendar = (Calendar) mCalendar.clone();
-                    startCalendar.set(
-                            mCalendar.get(Calendar.YEAR),
-                            (mCalendar.get(Calendar.MONTH) + mMonthCount),
-                            Integer.valueOf(mItems.get(mLastSelectPosition).getDay()));
-
-                    Calendar endCalendar = (Calendar) mCalendar.clone();
-                    endCalendar.set(
-                            mCalendar.get(Calendar.YEAR),
-                            (mCalendar.get(Calendar.MONTH) + mMonthCount),
-                            Integer.valueOf(mItems.get(mCurSelectPosition).getDay()));
-
-                    if (mCalendarListener != null) {
-                        mCalendarListener.onDateRangeSelected(startCalendar, endCalendar);
+                    if (mCalendarRangeSelectListener != null) {
+                        int startDay = Integer.valueOf(mItems.get(mLastSelectPosition).getDay());
+                        Calendar startCalendar = getCalendarByDay(startDay);
+                        int endDay = Integer.valueOf(mItems.get(curPosition).getDay());
+                        Calendar endCalendar = getCalendarByDay(endDay);
+                        mCalendarRangeSelectListener.onDateRangeSelected(startCalendar, endCalendar);
                     }
                 } else {
-                    mSelectCount = 0;
-                    for (MonthItem day : mItems) {
-                        day.setSelect(false);
-                    }
-                    notifyDataSetChanged();
+                    cancelAllSelect();
                 }
             } else {
-                mSelectCount = 0;
-                for (MonthItem day : mItems) {
-                    day.setSelect(false);
-                }
-                notifyDataSetChanged();
+                cancelAllSelect();
             }
         }
 
+        private Calendar getCalendarByDay(int day) {
+            Calendar calendar = (Calendar) mCalendar.clone();
+            calendar.set(
+                    mCalendar.get(Calendar.YEAR),
+                    (mCalendar.get(Calendar.MONTH) + mMonthCount),
+                    day);
+            return calendar;
+        }
+
+        private void cancelAllSelect() {
+            mSelectCount = 0;
+            for (DayItem day : mItems) {
+                day.setSelect(false);
+            }
+            notifyDataSetChanged();
+        }
 
         @Override
         public int getItemCount() {
             return mItems == null ? 0 : mItems.size();
         }
-
 
         class ViewHolder extends RecyclerView.ViewHolder {
 
@@ -302,13 +355,12 @@ public class OkCalendarView extends LinearLayout implements View.OnClickListener
         }
     }
 
-
-    static class MonthItem {
+    static class DayItem {
         private String day;
         private boolean isSelect;
         private boolean isThisMonth;
 
-        MonthItem(String day, boolean isSelect, boolean isThisMonth) {
+        DayItem(String day, boolean isSelect, boolean isThisMonth) {
             this.day = day;
             this.isSelect = isSelect;
             this.isThisMonth = isThisMonth;
@@ -327,7 +379,11 @@ public class OkCalendarView extends LinearLayout implements View.OnClickListener
         }
     }
 
-    public interface CalendarListener {
+    public interface CalendarSingleSelectListener {
+        void onDateSingleSelected(Calendar calendar);
+    }
+
+    public interface CalendarRangeSelectListener {
         void onDateRangeSelected(Calendar startCalendar, Calendar endCalendar);
     }
 }
