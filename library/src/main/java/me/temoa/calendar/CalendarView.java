@@ -1,4 +1,4 @@
-package me.t.view.okcalendar;
+package me.temoa.calendar;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -25,7 +25,7 @@ import java.util.Locale;
  * on 2018/2/25.
  */
 
-public class OkCalendarView extends LinearLayout implements View.OnClickListener {
+public class CalendarView extends LinearLayout implements View.OnClickListener {
 
     private CalendarAdapter mCalendarAdapter;
     private TextView mDateTv;
@@ -67,17 +67,17 @@ public class OkCalendarView extends LinearLayout implements View.OnClickListener
         showMonth();
     }
 
-    public OkCalendarView(Context context) {
+    public CalendarView(Context context) {
         super(context);
         init(context);
     }
 
-    public OkCalendarView(Context context, @Nullable AttributeSet attrs) {
+    public CalendarView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init(context);
     }
 
-    public OkCalendarView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public CalendarView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context);
     }
@@ -86,7 +86,7 @@ public class OkCalendarView extends LinearLayout implements View.OnClickListener
         mCalendar = Calendar.getInstance();
 
         LayoutInflater layoutInflater = LayoutInflater.from(context);
-        LinearLayout root = (LinearLayout) layoutInflater.inflate(R.layout.ok_calendar_month, this, true);
+        LinearLayout root = (LinearLayout) layoutInflater.inflate(R.layout.t_calendar_month, this, true);
         RecyclerView recyclerView = root.findViewById(R.id.recycler_view);
         mDateTv = root.findViewById(R.id.tv_date);
         ImageView nextMonthIv = root.findViewById(R.id.iv_next_month);
@@ -221,7 +221,7 @@ public class OkCalendarView extends LinearLayout implements View.OnClickListener
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View itemView = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.ok_calendar_item_day_of_month, parent, false);
+                    .inflate(R.layout.t_calendar_item_day_of_month, parent, false);
             return new ViewHolder(itemView);
         }
 
@@ -243,7 +243,7 @@ public class OkCalendarView extends LinearLayout implements View.OnClickListener
                     }
                 });
                 if (item.isSelect()) {
-                    holder.tv.setBackgroundResource(R.drawable.ok_calendar_shape_calendar_selected);
+                    holder.tv.setBackgroundResource(R.drawable.t_calendar_shape_calendar_selected);
                     holder.tv.setTextColor(Color.WHITE);
                 } else {
                     holder.tv.setBackground(null);

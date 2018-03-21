@@ -1,4 +1,4 @@
-package me.t.okcalendar;
+package me.temoa.okcalendar;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -12,14 +12,13 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-import me.t.view.okcalendar.OkCalendarView;
+import me.temoa.calendar.CalendarView;
 
 public class MainActivity extends AppCompatActivity {
 
     private SimpleDateFormat mFormatter;
 
-    private RadioGroup mRadioGroup;
-    private OkCalendarView mOkCalendarView;
+    private CalendarView mOkCalendarView;
     private Button mButton;
 
     @Override
@@ -27,23 +26,23 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mFormatter = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
-        mRadioGroup = findViewById(R.id.radio_group);
-        mRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+        RadioGroup radioGroup = findViewById(R.id.radio_group);
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
                 switch (checkedId) {
                     case R.id.radio_single:
-                        mOkCalendarView.setMode(OkCalendarView.Mode.SINGLE);
+                        mOkCalendarView.setMode(CalendarView.Mode.SINGLE);
                         mOkCalendarView.reset();
                         mButton.setVisibility(View.GONE);
                         break;
                     case R.id.radio_multi:
-                        mOkCalendarView.setMode(OkCalendarView.Mode.MULTI);
+                        mOkCalendarView.setMode(CalendarView.Mode.MULTI);
                         mOkCalendarView.reset();
                         mButton.setVisibility(View.VISIBLE);
                         break;
                     case R.id.radio_range:
-                        mOkCalendarView.setMode(OkCalendarView.Mode.RANGE);
+                        mOkCalendarView.setMode(CalendarView.Mode.RANGE);
                         mOkCalendarView.reset();
                         mButton.setVisibility(View.GONE);
                         break;
@@ -54,8 +53,8 @@ public class MainActivity extends AppCompatActivity {
         });
         mButton = findViewById(R.id.button);
         mOkCalendarView = findViewById(R.id.calendar);
-        mOkCalendarView.setMode(OkCalendarView.Mode.SINGLE);
-        mOkCalendarView.setCalendarRangeSelectListener(new OkCalendarView.CalendarRangeSelectListener() {
+        mOkCalendarView.setMode(CalendarView.Mode.SINGLE);
+        mOkCalendarView.setCalendarRangeSelectListener(new CalendarView.CalendarRangeSelectListener() {
             @Override
             public void onDateRangeSelected(Calendar startCalendar, Calendar endCalendar) {
                 String startDate = formatCalendar2Date(startCalendar);
@@ -63,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
                 Toast.makeText(MainActivity.this, startDate + " " + endDate, Toast.LENGTH_SHORT).show();
             }
         });
-        mOkCalendarView.setCalendarSingleSelectListener(new OkCalendarView.CalendarSingleSelectListener() {
+        mOkCalendarView.setCalendarSingleSelectListener(new CalendarView.CalendarSingleSelectListener() {
             @Override
             public void onDateSingleSelected(Calendar calendar) {
                 String date = formatCalendar2Date(calendar);

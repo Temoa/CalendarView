@@ -15,7 +15,7 @@
             android:id="@+id/iv_prv_month"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:src="@drawable/ok_calendar_ic_chevron_left_24dp"
+            android:src="@drawable/t_calendar_ic_chevron_left"
             tools:ignore="ContentDescription" />
 
         <TextView
@@ -32,7 +32,7 @@
             android:id="@+id/iv_next_month"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:src="@drawable/ok_calendar_ic_chevron_right_24dp"
+            android:src="@drawable/t_calendar_ic_chevron_right_24dp"
             tools:ignore="ContentDescription" />
     </LinearLayout>
 
@@ -43,31 +43,31 @@
 
         <include
             android:id="@+id/tv_week_0"
-            layout="@layout/ok_calendar_item_day_of_month" />
+            layout="@layout/t_calendar_item_day_of_month" />
 
         <include
             android:id="@+id/tv_week_1"
-            layout="@layout/ok_calendar_item_day_of_month" />
+            layout="@layout/t_calendar_item_day_of_month" />
 
         <include
             android:id="@+id/tv_week_2"
-            layout="@layout/ok_calendar_item_day_of_month" />
+            layout="@layout/t_calendar_item_day_of_month" />
 
         <include
             android:id="@+id/tv_week_3"
-            layout="@layout/ok_calendar_item_day_of_month" />
+            layout="@layout/t_calendar_item_day_of_month" />
 
         <include
             android:id="@+id/tv_week_4"
-            layout="@layout/ok_calendar_item_day_of_month" />
+            layout="@layout/t_calendar_item_day_of_month" />
 
         <include
             android:id="@+id/tv_week_5"
-            layout="@layout/ok_calendar_item_day_of_month" />
+            layout="@layout/t_calendar_item_day_of_month" />
 
         <include
             android:id="@+id/tv_week_6"
-            layout="@layout/ok_calendar_item_day_of_month" />
+            layout="@layout/t_calendar_item_day_of_month" />
 
     </LinearLayout>
 

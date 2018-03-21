@@ -22,8 +22,8 @@
             android:id="@+id/radio_single"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="单选日期"
             android:checked="true"
+            android:text="单选日期"
             tools:ignore="HardcodedText" />
 
         <RadioButton
@@ -54,7 +54,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <me.t.view.okcalendar.OkCalendarView
+        <me.temoa.calendar.CalendarView
             android:id="@+id/calendar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
